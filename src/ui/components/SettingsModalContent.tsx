@@ -1,11 +1,10 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode } from "react";
 import { Button, InputGroup, InputGroupInput, InputGroupPrefix, Link, ModalBody, ModalFooter, ModalHeader, ModalHeading, ModalIcon, Switch, SwitchControl, SwitchThumb } from "@heroui/react";
 import { FolderOpen, Wrench } from "lucide-react";
 import BrowseButton from "./BrowseButton";
 import { cfg, mutateCfg, mutateCfgSync, useCfgSyncedState } from "../../config";
 import { refreshDarkMode } from "../theming";
 import { FIELD_BUTTON_CLASSES } from "../fieldStyles";
-import { setPreviewVolume } from "../playback";
 
 /**
  * A single settings row: a title with a short description on the left and,
@@ -35,14 +34,9 @@ function SettingRow({ title, description, control, children }: {
 export default function SettingsModalContent({ onClose }: { onClose: () => void }) {
   const sampleDir = useCfgSyncedState<string>("sampleDir");
   const placeholders = useCfgSyncedState<boolean>("placeholders");
-  const volume = useCfgSyncedState<number>("volume");
   const trimDelay = useCfgSyncedState<boolean>("trimDelay");
   const darkMode = useCfgSyncedState<boolean>("darkMode");
   const checkUpdates = useCfgSyncedState<boolean>("checkUpdates");
-
-  useEffect(() => {
-    setPreviewVolume(cfg().volume);
-  }, []);
 
   async function closeFirstTimeSetup() {
     // Do not dismiss setup until both the folder and configured flag are on
@@ -54,12 +48,6 @@ export default function SettingsModalContent({ onClose }: { onClose: () => void 
   function changeDarkMode(enabled: boolean) {
     mutateCfgSync(enabled, darkMode);
     refreshDarkMode();
-  }
-
-  function changeVolume(value: number) {
-    const nextVolume = Math.max(0, Math.min(1, value));
-    setPreviewVolume(nextVolume);
-    mutateCfgSync(nextVolume, volume);
   }
 
   return (
@@ -102,27 +90,6 @@ export default function SettingsModalContent({ onClose }: { onClose: () => void 
               <BrowseButton variant="outline" className={FIELD_BUTTON_CLASSES} directory
                 onPick={ x => mutateCfgSync(x, sampleDir) }
               >Browse</BrowseButton>
-            </div>
-          </SettingRow>
-
-          <SettingRow
-            title="Preview volume"
-            description="Set the app-wide volume for sample previews. This setting is saved automatically."
-          >
-            <div className="flex items-center gap-3 mt-3">
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={cfg().volume}
-                onChange={event => changeVolume(Number(event.target.value))}
-                aria-label="Preview volume"
-                className="w-full accent-[var(--accent)] cursor-pointer"
-              />
-              <output className="w-10 text-right text-sm tabular-nums text-muted">
-                {Math.round(cfg().volume * 100)}%
-              </output>
             </div>
           </SettingRow>
 
