@@ -10,6 +10,9 @@ export interface SpliceddConfig {
   sampleDir: string;
   placeholders: boolean;
 
+  /** Master playback volume for sample previews, from 0 (muted) to 1 (full). */
+  volume: number;
+
   /** Whether to trim the MP3 encoder/decoder delay off the start of exported samples. */
   trimDelay: boolean;
   darkMode: boolean;
@@ -29,6 +32,7 @@ function defaultCfg(): SpliceddConfig {
     sampleDir: "",
     darkMode: true,
     placeholders: false,
+    volume: 1,
     trimDelay: true,
     checkUpdates: true,
     skippedUpdateVersion: "",
@@ -72,6 +76,9 @@ export async function loadConfig() {
       baseDir: BaseDirectory.AppConfig,
     });
     globalCfg = { ...defaultCfg(), ...JSON.parse(raw) };
+    // Clamp persisted values in case the config was edited or is from a newer version.
+    if (!Number.isFinite(globalCfg.volume)) globalCfg.volume = 1;
+    globalCfg.volume = Math.max(0, Math.min(1, globalCfg.volume));
   } catch (err) {
     // A missing, unreadable, or malformed config must never prevent the UI
     // from mounting. Keep the defaults and allow the next save to repair it.
@@ -110,7 +117,7 @@ interface ConfigSyncedState<T> {
 }
 
 /**
- * Allows for synchronization between React components and a single key-value pair of the configuration object.
+ * Allows for synchronization between React components and a single key-value pair of the configuration.
  */
 export function useCfgSyncedState<T>(key: keyof SpliceddConfig) {
   const [state, setState] = useState<T>(globalCfg[key] as T);

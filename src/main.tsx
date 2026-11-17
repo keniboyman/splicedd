@@ -4,14 +4,16 @@ import { Buffer } from "buffer";
 import { ToastProvider } from "@heroui/react";
 
 import App from "./ui/App";
-import { loadConfig } from "./config";
+import { loadConfig, cfg } from "./config";
 import { refreshDarkMode } from "./ui/theming";
+import { setPreviewVolume } from "./ui/playback";
 
 import "./ui/styles.css";
 
 window.Buffer = Buffer; // required for node-wav
 
 await loadConfig();
+setPreviewVolume(cfg().volume);
 
 refreshDarkMode();
 

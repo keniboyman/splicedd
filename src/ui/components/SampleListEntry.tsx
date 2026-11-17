@@ -11,7 +11,7 @@ import { join } from "@tauri-apps/api/path";
 
 import { cfg } from "../../config";
 import { DRAG_PREVIEW_ICON } from "../../dragIcon";
-import { SamplePlaybackContext } from "../playback";
+import { registerPreviewAudio, SamplePlaybackContext } from "../playback";
 import { SpliceTag } from "../../splice/entities";
 import { SpliceSample, SpliceSamplePack } from "../../splice/api";
 import { decodeSpliceAudio, getMp3SampleRate, MP3_START_DELAY } from "../../splice/decoder";
@@ -44,6 +44,8 @@ export default function SampleListEntry(
   }
 
   const audio = audioRef.current;
+
+  useEffect(() => registerPreviewAudio(audio), [audio]);
 
   const pack = sample.parents.items[0];
   const packCover = pack
@@ -268,10 +270,10 @@ export default function SampleListEntry(
       className={`group flex w-full px-3 py-2 gap-6 rounded-2xl transition-colors
                     items-center hover:bg-surface-secondary cursor-grab select-none`}
     >
-      { /* when loading, set the cursor for everything to a waiting icon */}
+      { /* when loading, set the cursor for everything to a waiting icon */ }
       {fgLoading && <style> {`* { cursor: wait }`} </style>}
 
-      { /* pack cover + play/stop control */}
+      { /* pack cover + play/stop control */ }
       <div className="flex items-center gap-3 shrink-0">
         <Tooltip>
           <TooltipTrigger>
@@ -321,7 +323,7 @@ export default function SampleListEntry(
         </button>
       </div>
 
-      { /* sample name + tags */}
+      { /* sample name + tags */ }
       <div className="flex-1 min-w-0 space-y-1" onMouseDown={handleDrag}>
         <div className="flex items-baseline gap-2 min-w-0">
           <span className="truncate">{sample.name.split("/").pop()}</span>
@@ -341,7 +343,7 @@ export default function SampleListEntry(
         ))}</div>
       </div>
 
-      { /* waveform preview */}
+      { /* waveform preview */ }
       {waveformUrl &&
         <Waveform
           src={waveformUrl}
@@ -350,7 +352,7 @@ export default function SampleListEntry(
           className="w-40 h-10 shrink-0"
         />}
 
-      { /* other metadata */}
+      { /* other metadata */ }
       <div className="grid grid-cols-3 gap-2 w-64 shrink-0 text-sm text-muted tabular-nums"
         onMouseDown={handleDrag}
       >
